@@ -114,7 +114,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String addressString = mAddress.getText().toString();
                     if (!addressString.isEmpty()) {
                         try {
-                            List<Address> addresses = mGeocoder.getFromLocationName(addressString, 2);
+                            List<Address> addresses = mGeocoder.getFromLocationName(addressString, 2,lowerLeftLatitude,
+                                    lowerLeftLongitude,
+                                    upperRightLatitude, upperRigthLongitude);
                             if (addresses != null && !addresses.isEmpty()) {
                                 Address addressResult = addresses.get(0);
                                 LatLng position = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
