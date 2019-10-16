@@ -19,18 +19,32 @@
         tools:context=".MapsActivity" />
 
     <EditText
-        android:id="@+id/txt_direccion"
+        android:id="@+id/txt_direccionA"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
         android:layout_margin="50dp"
         android:alpha="50"
         android:background="@drawable/roundedcorners"
-        android:hint="Ingrese la direccion"
+        android:layout_gravity="bottom"
+
+        android:hint="Ingrese la direccion B"
         android:textColorHint="#515657"
         android:inputType="text"
         android:imeOptions="actionSend"
         />
+
+    <EditText
+        android:id="@+id/txt_direccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="50dp"
+        android:alpha="50"
+        android:background="@drawable/roundedcorners"
+        android:hint="Ingrese la direccion A"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:textColorHint="#515657" />
 </FrameLayout>
 
 

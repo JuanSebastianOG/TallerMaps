@@ -28,6 +28,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     EditText mAddress;
+    EditText mAddressA;
+
+    MarkerOptions place1,place2;
     // Limits for the geocoder search (Colombia)
     public static final double lowerLeftLatitude = 1.396967;
     public static final double lowerLeftLongitude= -78.903968;
@@ -58,18 +61,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mAddress= (EditText) findViewById(R.id.txt_direccion);
+        mAddress= (EditText) findViewById(R.id.txt_direccionA);
+        mAddressA= (EditText) findViewById(R.id.txt_direccion);
+
         //Pone el estilo que recibe del json
         mMap.setMapStyle(MapStyleOptions
                 .loadRawResourceStyle(this, R.raw.style_json));
 
-
-
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         // Agregar un marcador en bogotá
         LatLng bogota = new LatLng(4.65, -74.05);
@@ -112,14 +110,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Geocoder mGeocoder = new Geocoder(getBaseContext());
                 if (actionId == EditorInfo.IME_ACTION_SEND){
                     String addressString = mAddress.getText().toString();
+                    String addressStringA = mAddressA.getText().toString();
+
                     if (!addressString.isEmpty()) {
                         try {
                             List<Address> addresses = mGeocoder.getFromLocationName(addressString, 2,lowerLeftLatitude,
                                     lowerLeftLongitude,
                                     upperRightLatitude, upperRigthLongitude);
-                            if (addresses != null && !addresses.isEmpty()) {
+                            List<Address> addressesA = mGeocoder.getFromLocationName(addressStringA, 2,lowerLeftLatitude,
+                                    lowerLeftLongitude,
+                                    upperRightLatitude, upperRigthLongitude);
+                            if (addresses != null && !addresses.isEmpty()&& !addressesA.isEmpty()) {
                                 Address addressResult = addresses.get(0);
+                                Address addressResultA = addressesA.get(0);
+
                                 LatLng position = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
+                                LatLng positionA = new LatLng(addressResultA.getLatitude(), addressResultA.getLongitude());
                                 if (mMap != null) {
                                     //Agregar Marcador al mapa
                                     Marker chefMark = mMap.addMarker(new MarkerOptions()
@@ -129,7 +135,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                             .icon(BitmapDescriptorFactory
                                                     .fromResource(R.mipmap.ic_chef)));
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+
+                                    Marker chefMarkA = mMap.addMarker(new MarkerOptions()
+                                            .position(positionA)
+                                            .title("Chefsito1")
+                                            .snippet("De 3 pm a 5 pm")
+                                            .icon(BitmapDescriptorFactory
+                                                    .fromResource(R.mipmap.ic_chef)));
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(positionA));
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(20));
+
+                                    //String url getUrl();
+
                                 }
                             } else {Toast.makeText(MapsActivity.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();}
                         } catch (IOException e) {
@@ -141,10 +158,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
-
-
-
-
     }
+
 }
