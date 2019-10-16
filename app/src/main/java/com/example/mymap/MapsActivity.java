@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mymap.directionhelpers.FetchURL;
+import com.example.mymap.directionhelpers.TaskLoadedCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -20,15 +22,20 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback , TaskLoadedCallback {
     private GoogleMap mMap;
+    private Polyline currentPolyline;
+
     EditText mAddress;
     EditText mAddressA;
+
 
     MarkerOptions place1,place2;
     // Limits for the geocoder search (Colombia)
@@ -41,6 +48,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        place1 = new MarkerOptions().position(new LatLng(27.658143, 85.3199503)).title("Location 1");
+        place2 = new MarkerOptions().position(new LatLng(27.667491, 85.3208583)).title("Location 2");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -64,9 +74,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mAddress= (EditText) findViewById(R.id.txt_direccionA);
         mAddressA= (EditText) findViewById(R.id.txt_direccion);
 
+        mMap.addMarker(place1);
+        mMap.addMarker(place2);
         //Pone el estilo que recibe del json
-        mMap.setMapStyle(MapStyleOptions
-                .loadRawResourceStyle(this, R.raw.style_json));
+        //mMap.setMapStyle(MapStyleOptions
+          //      .loadRawResourceStyle(this, R.raw.style_json));
 
 
         // Agregar un marcador en bogotá
@@ -87,12 +99,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.zoomTo(20));*/
 
 
-        //Habilita boton para localización
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-
-        //Habilita brujula
-
-        mMap.getUiSettings().setCompassEnabled(true);
 
        //Habilitar los “gestures” como “pinch to zoom”
         mMap.getUiSettings().setZoomGesturesEnabled(true);
@@ -145,7 +151,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(positionA));
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(20));
 
-                                    //String url getUrl();
+
+
+                                  // new FetchURL(MapsActivity.this).execute(getUrl(chefMarkA.getPosition(), chefMark.getPosition(), "driving"), "driving");
 
                                 }
                             } else {Toast.makeText(MapsActivity.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();}
@@ -159,5 +167,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
 
+    @Override
+    public void onTaskDone(Object... values) {
+
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+    }
 }
